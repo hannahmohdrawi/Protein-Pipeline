@@ -16,7 +16,6 @@ def read_fasta(file_path):
 
 
 # Amino acid Composition
-
 aa_weights = {
     'A': 89.1, 'R': 174.2, 'N': 132.1, 'D': 133.1,
     'C': 121.2, 'E': 147.1, 'Q': 146.2, 'G': 75.1,
@@ -32,10 +31,66 @@ def molecular_weight(seq):
     return total - (len(seq) - 1) * water_mass
 
 
-# Protein: Haemoglobin 
+# pKa Values
+pKa = {
+    'Cterm': 2.34,
+    'Nterm': 9.69,
+    'C': 8.33,
+    'D': 3.86,
+    'E': 4.25,
+    'H': 6.00,
+    'K': 10.53,
+    'R': 12.48,
+    'Y': 10.07
+}
+
+# Calculating Isoelectric Point
+# Charge Calculation Function
+def net_charge(seq, pH):
+    counts = {aa: seq.count(aa) for aa in "CDEHKRY"}
+
+    # Positive charges
+    pos = (
+        (10**pKa['Nterm'] / (10**pKa['Nterm'] + 10**pH)) +
+        counts['K'] * (10**pKa['K'] / (10**pKa['K'] + 10**pH)) +
+        counts['R'] * (10**pKa['R'] / (10**pKa['R'] + 10**pH)) +
+        counts['H'] * (10**pKa['H'] / (10**pKa['H'] + 10**pH))
+    )
+
+    # Negative charges
+    neg = (
+        (10**pH / (10**pKa['Cterm'] + 10**pH)) +
+        counts['D'] * (10**pH / (10**pKa['D'] + 10**pH)) +
+        counts['E'] * (10**pH / (10**pKa['E'] + 10**pH)) +
+        counts['C'] * (10**pH / (10**pKa['C'] + 10**pH)) +
+        counts['Y'] * (10**pH / (10**pKa['Y'] + 10**pH))
+    )
+
+    return pos - neg
+
+# Find the pI
+def calculate_pI(seq):
+    best_pH = 0
+    min_charge = float("inf")
+
+    for pH in [x * 0.01 for x in range(0, 1400)]:  # pH 0–14
+        charge = net_charge(seq, pH)
+
+        if abs(charge) < min_charge:
+            min_charge = abs(charge)
+            best_pH = pH
+
+    return best_pH
+
+
+
+
+# Running Protein: Haemoglobin 
 header, seq = read_fasta("haemoglobin.fasta")
 
 print("Header", header)
 print("Sequence length:", len(seq))
 print("Molecular Weight:", molecular_weight(seq))
-print("First 50 aa:", seq[:50])
+pI = calculate_pI(seq)
+print("Isoelectric point (pI):", pI)
+# print("First 50 aa:", seq[:50])
