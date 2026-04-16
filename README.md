@@ -153,6 +153,6 @@ Protein sequences can be obtained from:
 
 ## 👨‍💻 Author
 
-This project was created as part of learning bioinformatics and Python.
+This project was created as part of learning bioinformatics and Python by Hannah Mohd-Rawi.
 
 ---
