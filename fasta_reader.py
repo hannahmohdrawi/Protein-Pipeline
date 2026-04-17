@@ -15,7 +15,7 @@ def read_fasta(file_path):
     return header, sequence
 
 
-# Amino acid Composition
+# Amino acid weights
 aa_weights = {
     'A': 89.1, 'R': 174.2, 'N': 132.1, 'D': 133.1,
     'C': 121.2, 'E': 147.1, 'Q': 146.2, 'G': 75.1,
@@ -31,7 +31,7 @@ def molecular_weight(seq):
     return total - (len(seq) - 1) * water_mass
 
 
-# pKa Values
+# pKa Values include C and N terminus
 pKa = {
     'Cterm': 2.34,
     'Nterm': 9.69,
@@ -44,10 +44,13 @@ pKa = {
     'Y': 10.07
 }
 
-# Calculating Isoelectric Point
-# Charge Calculation Function
-def net_charge(seq, pH):
-    counts = {aa: seq.count(aa) for aa in "CDEHKRY"}
+# Calculating counts once
+def get_counts(seq):
+    return {aa: seq.count(aa) for aa in "CDEHKRY"}
+
+
+# Charge Calculation Function using precomputed counts
+def net_charge_from_counts(counts, pH):
 
     # Positive charges
     pos = (
@@ -68,19 +71,21 @@ def net_charge(seq, pH):
 
     return pos - neg
 
+
 # Find the pI
-def calculate_pI(seq):
+def calculate_pI(counts):
     best_pH = 0
     min_charge = float("inf")
 
     for pH in [x * 0.01 for x in range(0, 1400)]:  # pH 0–14
-        charge = net_charge(seq, pH)
+        charge = net_charge_from_counts(counts, pH)
 
         if abs(charge) < min_charge:
             min_charge = abs(charge)
             best_pH = pH
 
     return best_pH
+
 
 # Amino Acid Composition
 from collections import Counter
@@ -100,26 +105,30 @@ def plot_charge_curve(counts, pI):
     charges = [net_charge_from_counts(counts, pH) for pH in pH_values]
 
     plt.plot(pH_values, charges)
-    plt.axhline(0)              # zero charge line
-    plt.axvline(pI)             # pI marker
+    plt.axhline(0)
+    plt.axvline(pI)
 
     plt.xlabel("pH")
     plt.ylabel("Net Charge")
     plt.title("Charge vs pH Curve")
 
-    # Label the pI
     plt.text(pI, 0, f" pI ≈ {pI:.2f}")
 
-    # Save + show
     plt.savefig("charge_vs_ph.png")
     plt.show()
 
-# Running Protein: Haemoglobin 
-header, seq = read_fasta("haemoglobin.fasta")
+# Eexecution
+if __name__ == "__main__":
 
-print("Header", header)
-print("Sequence length:", len(seq))
-print("Molecular Weight:", molecular_weight(seq))
-pI = calculate_pI(seq)
-print("Isoelectric point (pI):", pI)
-# print("First 50 aa:", seq[:50])
+    header, seq = read_fasta("haemoglobin.fasta")
+    counts = get_counts(seq)
+
+    print("Header:", header)
+    print("Sequence length:", len(seq))
+    print("Molecular Weight:", molecular_weight(seq))
+
+    pI = calculate_pI(counts) 
+    print("Isoelectric point (pI):", pI)
+
+    # Generating plot
+    plot_charge_curve(counts, pI)
