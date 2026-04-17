@@ -1,3 +1,9 @@
+import re
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+
+
 # Reading protein file and returning sequence
 def read_fasta(file_path):
     header = ""
@@ -15,6 +21,13 @@ def read_fasta(file_path):
     return header, sequence
 
 
+# Extract clean protein name from FASTA header
+def get_protein_name(header):
+    name = header.split()[1] if " " in header else "protein"
+    name = re.sub(r"[^A-Za-z0-9_]+", "_", name)
+    return name
+
+
 # Amino acid weights
 aa_weights = {
     'A': 89.1, 'R': 174.2, 'N': 132.1, 'D': 133.1,
@@ -24,6 +37,7 @@ aa_weights = {
     'T': 119.1, 'W': 204.2, 'Y': 181.2, 'V': 117.1
 }
 
+
 # Calculating molecular weight
 def molecular_weight(seq):
     total = sum(aa_weights.get(aa, 0) for aa in seq)
@@ -31,7 +45,7 @@ def molecular_weight(seq):
     return total - (len(seq) - 1) * water_mass
 
 
-# pKa Values include C and N terminus
+# pKa Values
 pKa = {
     'Cterm': 2.34,
     'Nterm': 9.69,
@@ -44,15 +58,15 @@ pKa = {
     'Y': 10.07
 }
 
-# Calculating counts once
+
+# Count charged residues once
 def get_counts(seq):
     return {aa: seq.count(aa) for aa in "CDEHKRY"}
 
 
-# Charge Calculation Function using precomputed counts
+# Net charge calculation
 def net_charge_from_counts(counts, pH):
 
-    # Positive charges
     pos = (
         (10**pKa['Nterm'] / (10**pKa['Nterm'] + 10**pH)) +
         counts['K'] * (10**pKa['K'] / (10**pKa['K'] + 10**pH)) +
@@ -60,7 +74,6 @@ def net_charge_from_counts(counts, pH):
         counts['H'] * (10**pKa['H'] / (10**pKa['H'] + 10**pH))
     )
 
-    # Negative charges
     neg = (
         (10**pH / (10**pKa['Cterm'] + 10**pH)) +
         counts['D'] * (10**pH / (10**pKa['D'] + 10**pH)) +
@@ -72,12 +85,12 @@ def net_charge_from_counts(counts, pH):
     return pos - neg
 
 
-# Find the pI
+# Find pI
 def calculate_pI(counts):
     best_pH = 0
     min_charge = float("inf")
 
-    for pH in [x * 0.01 for x in range(0, 1400)]:  # pH 0–14
+    for pH in [x * 0.01 for x in range(0, 1400)]:
         charge = net_charge_from_counts(counts, pH)
 
         if abs(charge) < min_charge:
@@ -87,19 +100,15 @@ def calculate_pI(counts):
     return best_pH
 
 
-# Amino Acid Composition
-from collections import Counter
-
+# Amino acid composition
 def aa_composition(seq):
     counts = Counter(seq)
     total = len(seq)
     return {aa: counts[aa]/total for aa in counts}
 
 
-# Plotting Charge vs pH
-def plot_charge_curve(counts, pI):
-    import numpy as np
-    import matplotlib.pyplot as plt
+# Plot charge curve
+def plot_charge_curve(counts, pI, protein_name):
 
     pH_values = np.linspace(0, 14, 200)
     charges = [net_charge_from_counts(counts, pH) for pH in pH_values]
@@ -110,25 +119,29 @@ def plot_charge_curve(counts, pI):
 
     plt.xlabel("pH")
     plt.ylabel("Net Charge")
-    plt.title("Charge vs pH Curve")
+    plt.title(f"Charge vs pH Curve: {protein_name}")
 
     plt.text(pI, 0, f" pI ≈ {pI:.2f}")
 
-    plt.savefig("charge_vs_ph.png")
+    filename = f"{protein_name}_charge_vs_ph.png"
+    plt.savefig(filename)
     plt.show()
 
-# Eexecution
+    print(f"Graph saved as: {filename}")
+
+# Execution
 if __name__ == "__main__":
 
     header, seq = read_fasta("haemoglobin.fasta")
     counts = get_counts(seq)
 
+    protein_name = get_protein_name(header)
+
     print("Header:", header)
     print("Sequence length:", len(seq))
     print("Molecular Weight:", molecular_weight(seq))
 
-    pI = calculate_pI(counts) 
+    pI = calculate_pI(counts)
     print("Isoelectric point (pI):", pI)
 
-    # Generating plot
-    plot_charge_curve(counts, pI)
+    plot_charge_curve(counts, pI, protein_name)
