@@ -102,10 +102,19 @@ charge_vs_ph.png
 ```text id="m4n8qa"
 protein_pipeline/
 │
-├── fasta_reader.py
-├── haemoglobin.fasta
-├── charge_vs_ph.png (generated)
-└── README.md
+├── fasta_reader.py              # Main analysis script
+│
+├── Protein FASTA/               # Input folder (raw protein sequences)
+│   ├── haemoglobin.fasta
+│   ├── example_protein.fasta
+│   └── ...
+│
+├── Protein Graphs/              # Output folder (generated plots)
+│   ├── HBA_HUMAN_charge_vs_ph.png
+│   ├── example_protein_charge_vs_ph.png
+│   └── ...
+│
+├── README.md                    # Project documentation
 ```
 
 ---
