@@ -82,8 +82,37 @@ def calculate_pI(seq):
 
     return best_pH
 
+# Amino Acid Composition
+from collections import Counter
+
+def aa_composition(seq):
+    counts = Counter(seq)
+    total = len(seq)
+    return {aa: counts[aa]/total for aa in counts}
 
 
+# Plotting Charge vs pH
+def plot_charge_curve(counts, pI):
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    pH_values = np.linspace(0, 14, 200)
+    charges = [net_charge_from_counts(counts, pH) for pH in pH_values]
+
+    plt.plot(pH_values, charges)
+    plt.axhline(0)              # zero charge line
+    plt.axvline(pI)             # pI marker
+
+    plt.xlabel("pH")
+    plt.ylabel("Net Charge")
+    plt.title("Charge vs pH Curve")
+
+    # Label the pI
+    plt.text(pI, 0, f" pI ≈ {pI:.2f}")
+
+    # Save + show
+    plt.savefig("charge_vs_ph.png")
+    plt.show()
 
 # Running Protein: Haemoglobin 
 header, seq = read_fasta("haemoglobin.fasta")
