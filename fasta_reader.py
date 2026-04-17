@@ -1,10 +1,10 @@
 import re
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 
-
-# Reading protein file and returning sequence
+# File handling
 def read_fasta(file_path):
     header = ""
     sequence = ""
@@ -28,7 +28,7 @@ def get_protein_name(header):
     return name
 
 
-# Amino acid weights
+# Properties
 aa_weights = {
     'A': 89.1, 'R': 174.2, 'N': 132.1, 'D': 133.1,
     'C': 121.2, 'E': 147.1, 'Q': 146.2, 'G': 75.1,
@@ -38,14 +38,12 @@ aa_weights = {
 }
 
 
-# Calculating molecular weight
 def molecular_weight(seq):
     total = sum(aa_weights.get(aa, 0) for aa in seq)
     water_mass = 18.015
     return total - (len(seq) - 1) * water_mass
 
 
-# pKa Values
 pKa = {
     'Cterm': 2.34,
     'Nterm': 9.69,
@@ -59,12 +57,10 @@ pKa = {
 }
 
 
-# Count charged residues once
 def get_counts(seq):
     return {aa: seq.count(aa) for aa in "CDEHKRY"}
 
 
-# Net charge calculation
 def net_charge_from_counts(counts, pH):
 
     pos = (
@@ -85,7 +81,6 @@ def net_charge_from_counts(counts, pH):
     return pos - neg
 
 
-# Find pI
 def calculate_pI(counts):
     best_pH = 0
     min_charge = float("inf")
@@ -100,15 +95,16 @@ def calculate_pI(counts):
     return best_pH
 
 
-# Amino acid composition
 def aa_composition(seq):
     counts = Counter(seq)
     total = len(seq)
     return {aa: counts[aa]/total for aa in counts}
 
-
-# Plot charge curve
+# Plotting
 def plot_charge_curve(counts, pI, protein_name):
+
+    # Ensure output folder exists
+    os.makedirs("Protein Graphs", exist_ok=True)
 
     pH_values = np.linspace(0, 14, 200)
     charges = [net_charge_from_counts(counts, pH) for pH in pH_values]
@@ -123,7 +119,12 @@ def plot_charge_curve(counts, pI, protein_name):
 
     plt.text(pI, 0, f" pI ≈ {pI:.2f}")
 
-    filename = f"{protein_name}_charge_vs_ph.png"
+    # Save in Protein Graphs folder
+    filename = os.path.join(
+        "Protein Graphs",
+        f"{protein_name}_charge_vs_ph.png"
+    )
+
     plt.savefig(filename)
     plt.show()
 
@@ -132,7 +133,8 @@ def plot_charge_curve(counts, pI, protein_name):
 # Execution
 if __name__ == "__main__":
 
-    header, seq = read_fasta("haemoglobin.fasta")
+    # Input from folder
+    header, seq = read_fasta("Protein FASTA/haemoglobin.fasta")
     counts = get_counts(seq)
 
     protein_name = get_protein_name(header)
