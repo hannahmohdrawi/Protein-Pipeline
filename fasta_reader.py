@@ -100,6 +100,26 @@ def aa_composition(seq):
     total = len(seq)
     return {aa: counts[aa]/total for aa in counts}
 
+
+# Feature extraction for ML
+def extract_features(seq):
+    features = {}
+
+    # Basic features
+    features["length"] = len(seq)
+    features["molecular_weight"] = molecular_weight(seq)
+
+    # pI
+    counts = get_counts(seq)
+    features["pI"] = calculate_pI(counts)
+
+    # Amino acid composition (20 features)
+    comp = aa_composition(seq)
+    for aa in "ARNDCEQGHILKMFPSTWYV":
+        features[f"freq_{aa}"] = comp.get(aa, 0)
+
+    return features
+
 # Plotting
 def plot_charge_curve(counts, pI, protein_name):
 
@@ -147,3 +167,23 @@ if __name__ == "__main__":
     print("Isoelectric point (pI):", pI)
 
     plot_charge_curve(counts, pI, protein_name)
+
+    # Extract features
+    features = extract_features(seq)
+
+    print("\nExtracted Features:")
+    for key, value in features.items():
+        print(f"{key}: {value}")
+
+    # Saving features to file 
+    os.makedirs("Features", exist_ok=True)
+
+    feature_file = os.path.join(
+        "Features",
+        f"{protein_name}_features.json"
+    )
+
+    with open(feature_file, "w") as f:
+        json.dump(features, f, indent=4)
+
+    print(f"Features saved as: {feature_file}")
