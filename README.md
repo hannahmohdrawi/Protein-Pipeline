@@ -1,9 +1,35 @@
 # 🧬 Protein Analysis Pipeline
 
-## 📌 Overview
+## 📌 Description
 
 This project is a Python-based bioinformatics pipeline that reads protein sequences from FASTA files and computes key biochemical properties such as molecular weight, amino acid composition, and isoelectric point (pI). It also visualizes protein charge behavior across pH values.
 
+---
+
+## 🔄 Pipeline Overview
+
+```text
+[FASTA File]
+     │
+     ▼
+[read_fasta()]
+     │
+     ▼
+[Protein Sequence]
+     │
+     ├───────────────┬────────────────────┐
+     ▼               ▼                    ▼
+[Molecular Weight] [AA Composition] [Charge Calculation]
+                                          │
+                                          ▼
+                                  [pI Estimation]
+                                          │
+                                          ▼
+                              [Charge vs pH Plot]
+                                          │
+                                          ▼
+                          [Saved Graph (PNG Output)]
+```
 ---
 
 ## ⚙️ Installation Requirements
