@@ -3,6 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
+import json
 
 # File handling
 def read_fasta(file_path):
