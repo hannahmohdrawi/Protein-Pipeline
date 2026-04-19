@@ -2,7 +2,7 @@
 
 ## 📌 Description
 
-This project is a Python-based bioinformatics pipeline that reads protein sequences from FASTA files and computes key biochemical properties such as molecular weight, amino acid composition, and isoelectric point (pI). It also visualizes protein charge behavior across pH values.
+This project is a Python-based bioinformatics pipeline that reads protein sequences from FASTA files and computes key biochemical properties such as molecular weight, amino acid composition, isoelectric point (pI), and hydrophobicity. It also visualizes protein charge behavior across pH values.
 
 ---
 
@@ -17,19 +17,20 @@ This project is a Python-based bioinformatics pipeline that reads protein sequen
      ▼
 [Protein Sequence]
      │
-     ├───────────────┬────────────────────┐
-     ▼               ▼                    ▼
-[Molecular Weight] [AA Composition] [Charge Calculation]
-                                          │
-                                          ▼
-                                  [pI Estimation]
-                                          │
-                                          ▼
-                              [Charge vs pH Plot]
-                                          │
-                                          ▼
-                          [Saved Graph (PNG Output)]
+     ├───────────────┬────────────────────┬────────────────────┐
+     ▼               ▼                    ▼                    ▼
+[Molecular Weight] [AA Composition] [Hydrophobicity] [Charge Calculation]
+                                                           │
+                                                           ▼
+                                                   [pI Estimation]
+                                                           │
+                                                           ▼
+                                               [Charge vs pH Plot]
+                                                           │
+                                                           ▼
+                           [Saved Graph (PNG)] + [Saved Features (JSON)]
 ```
+
 ---
 
 ## ⚙️ Installation Requirements
@@ -45,21 +46,19 @@ This project requires Python 3.8+ and the following Python libraries:
 
 ### 💻 Install Dependencies
 
-Run the following command in your terminal or command prompt:
+Run the following command:
 
-```bash id="q1p9ab"
+```bash
 pip install numpy matplotlib
 ```
 
-If that does not work, try:
+Alternative options:
 
-```bash id="w8k2nc"
+```bash
 python -m pip install numpy matplotlib
 ```
 
-or on Windows:
-
-```bash id="r3m9xd"
+```bash
 py -m pip install numpy matplotlib
 ```
 
@@ -67,11 +66,15 @@ py -m pip install numpy matplotlib
 
 ## 🚀 How to Run
 
-1. Ensure your FASTA file (e.g. `haemoglobin.fasta`) is in the same folder as the script.
+1. Place your FASTA file inside:
+
+```text
+Protein FASTA/
+```
 
 2. Run the program:
 
-```bash id="t6v9qp"
+```bash
 python fasta_reader.py
 ```
 
@@ -84,48 +87,104 @@ python fasta_reader.py
 * Reads protein sequences from `.fasta` files
 * Extracts header and amino acid sequence
 
+---
+
 ### 🔹 Molecular Weight Calculation
 
 * Computes protein molecular weight using amino acid composition
 * Accounts for peptide bond formation (water loss correction)
 
+---
+
 ### 🔹 Amino Acid Composition
 
 * Calculates frequency of each amino acid in the sequence
+
+---
 
 ### 🔹 Isoelectric Point (pI)
 
 * Estimates pH at which the protein has net zero charge
 * Uses pKa-based charge modelling and numerical search
 
+---
+
+### 🔹 Hydrophobicity (NEW)
+
+* Calculates average hydrophobicity using the **Kyte–Doolittle scale**
+* Indicates whether a protein is:
+
+  * **Hydrophobic** (positive values → membrane-associated tendency)
+  * **Hydrophilic** (negative values → soluble proteins)
+
+---
+
 ### 🔹 Charge vs pH Visualization
 
 * Plots net charge across pH 0–14
 * Marks estimated pI on the graph
-* Saves plot as `charge_vs_ph.png`
+* Saves plot as a PNG file in `Protein Graphs/`
+
+---
+
+### 🔹 Feature Extraction (ML-Ready)
+
+* Converts protein sequences into structured numerical features:
+
+  * Length
+  * Molecular weight
+  * pI
+  * Hydrophobicity
+  * Amino acid frequencies (20 features)
+
+* Saves features as JSON files in `Features/`
 
 ---
 
 ## 📊 Output Example
 
-```text id="v2k8sd"
+```text
 Header: >sp|P69905|HBA_HUMAN Hemoglobin subunit alpha OS=Homo sapiens
 Sequence length: 142
 Molecular Weight: 15126.0
 Isoelectric point (pI): 8.72
+hydrophobicity: -0.45
 ```
 
-A graph image file will also be generated:
+---
 
+### 📈 Generated Files
+
+**Graph:**
+
+```text
+Protein Graphs/HBA_HUMAN_charge_vs_ph.png
 ```
-charge_vs_ph.png
+
+**Features:**
+
+```text
+Features/HBA_HUMAN_features.json
+```
+
+Example JSON:
+
+```json
+{
+    "length": 142,
+    "molecular_weight": 15126.0,
+    "pI": 8.72,
+    "hydrophobicity": -0.45,
+    "freq_A": 0.07,
+    "freq_R": 0.03
+}
 ```
 
 ---
 
 ## 📂 Project Structure
 
-```text id="m4n8qa"
+```text
 protein_pipeline/
 │
 ├── fasta_reader.py              # Main analysis script
@@ -137,7 +196,10 @@ protein_pipeline/
 │
 ├── Protein Graphs/              # Output folder (generated plots)
 │   ├── HBA_HUMAN_charge_vs_ph.png
-│   ├── example_protein_charge_vs_ph.png
+│   └── ...
+│
+├── Features/                    # Extracted ML features
+│   ├── HBA_HUMAN_features.json
 │   └── ...
 │
 ├── README.md                    # Project documentation
@@ -157,16 +219,28 @@ Protein sequences can be obtained from:
 
 * Ensure all dependencies are installed before running the script
 * The pI calculation is an approximation based on pKa values
+* Hydrophobicity is based on the Kyte–Doolittle scale
 * Designed for educational and learning purposes
 
 ---
 
 ## 🚀 Future Improvements
 
-* Add hydrophobicity analysis
-* Improve pI calculation accuracy
-* Add command-line arguments for input FASTA files
-* Export results to CSV or JSON
+* Batch processing of multiple FASTA files
+* Export features to CSV for datasets
+* Add additional properties:
+
+  * Aromaticity
+  * Instability index
+  * Secondary structure prediction
 * Build ML-based protein classification module
 
 ---
+
+## 📌 Summary
+
+This project demonstrates a complete:
+
+**FASTA → Analysis → Visualization → Feature Extraction pipeline**
+
+and provides a strong foundation for bioinformatics and machine learning applications.
