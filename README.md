@@ -226,14 +226,73 @@ Protein sequences can be obtained from:
 
 ## 🚀 Future Improvements
 
+### 🔹 Machine Learning Integration (Planned)
+
+Extend the pipeline to include machine learning for protein classification and prediction tasks.
+
+**Proposed workflow:**
+
+```text
+Protein FASTA → Feature Extraction → Dataset → ML Model → Prediction
+```
+
+**Planned additions:**
+
+* 📊 **Dataset generation**
+
+  * Process multiple FASTA files
+  * Combine extracted features into a structured dataset (CSV)
+
+* 🧮 **Model training**
+
+  * Use models such as:
+
+    * Random Forest
+    * Logistic Regression
+  * Train on labelled protein data (e.g. function, location)
+
+* 🔮 **Prediction capability**
+
+  * Predict properties such as:
+
+    * Protein function
+    * Cellular location (cytosolic vs membrane)
+    * Protein class/type
+
+* 📈 **Model evaluation**
+
+  * Accuracy, precision, recall
+  * Train/test split validation
+
+* 💾 **Model persistence**
+
+  * Save trained models for reuse (`.pkl` files)
+
+---
+
+### 🔹 Additional Enhancements
+
 * Batch processing of multiple FASTA files
-* Export features to CSV for datasets
-* Add additional properties:
+* Export features to CSV for dataset creation
+* Add more biochemical properties:
 
   * Aromaticity
   * Instability index
   * Secondary structure prediction
-* Build ML-based protein classification module
+* Command-line interface (CLI) for flexible input
+
+---
+
+### 🧠 Long-Term Vision
+
+Transform this project into a complete:
+
+```text
+Protein Analysis → Feature Engineering → Machine Learning Platform
+```
+
+capable of supporting real-world bioinformatics workflows.
+
 
 ---
 
